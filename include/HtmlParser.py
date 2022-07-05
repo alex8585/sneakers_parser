@@ -66,6 +66,9 @@ class HtmlParser:
         sizesLinksSoup = soup_product.find('div', {'data-name': "size"})
         if(sizesLinksSoup):
             sizesLinks = sizesLinksSoup.findAll('a')
+            if(not sizesLinks):
+                sizesLinks = sizesLinksSoup.findAll(class_="selectedValue")
+
 
         origPriceSoup = soup_product.find('span', class_="origPrice")
         origPrice = ''
@@ -74,6 +77,12 @@ class HtmlParser:
             origPrice = origPrice.text.strip()[1:]
 
         imagesElems = soup_product.findAll('a', class_="fancybox")
+        if(imagesElems):
+            images = [elem['href'] for elem in imagesElems]
+        else:
+            imagesElem = soup_product.find(id="ProductImage").find(itemprop="image") 
+            images = [imagesElem['src']]
+
         description = ''
         description_node = soup_product.find('p', itemprop="description")
         if(description_node):
@@ -102,7 +111,7 @@ class HtmlParser:
             'description': description,
             "sizes": [link.text for link in sizesLinks],
             "widths": [elem.text.strip() for elem in widthsLinks],
-            "images": [elem['href'] for elem in imagesElems],
+            "images": images,
         }
 
         return product
